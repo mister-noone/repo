@@ -17,11 +17,14 @@ void print_usage(char *argv[]) {
 
 int main(int argc, char *argv[]) { 
 	bool newfile = false;
+	bool addingEmployee = false;
 	char *filename = NULL;
 	int opt;
 	int fd = -1;
+	char *addstring = NULL;
 	struct dbheader_t *dbhdr = NULL;
-	while((opt = getopt(argc, argv, ":hf:n")) != -1){
+	struct employee_t *employees = NULL;
+	while((opt = getopt(argc, argv, ":hf:an")) != -1){
 		switch(opt){
 			case 'h':
 				print_usage(argv);
@@ -31,6 +34,10 @@ int main(int argc, char *argv[]) {
 				break;
 			case 'f':
 				filename = optarg;
+				break;
+			case 'a':
+				addstring = optarg;
+				addingEmployee = true;
 				break;
 			case '?':
 				printf("Uknown option: %c\n", optopt);
@@ -60,8 +67,6 @@ int main(int argc, char *argv[]) {
 			printf("Could not write header to DB file\n");
 			return -1;
 		}
-		printf("Created DB header\n");
-		return 0;
 	} else {
 		fd = open_db_file(filename);		
 		if (fd == STATUS_ERROR) {
@@ -72,9 +77,20 @@ int main(int argc, char *argv[]) {
 			printf("DB header validation failed\n");
 			return -1;
 		}
-		printf("DB header validation passed\n");
-		return 0;
 	}
+
+	if (addingEmployee && addstring != NULL) {
+		if (read_employees(fd, dbhdr, &employees) == STATUS_ERROR) {
+			printf("Could not load employees from the file\n");
+			return -1;
+		}
+		if (add_employee(dbhdr, employees, addstring) == STATUS_ERROR) {
+			printf("Could not add an employee\n");
+			return -1;
+		}	
+		printf("Employee added!\n");
+	}
+
 	return 0;
 	
 }

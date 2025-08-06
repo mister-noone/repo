@@ -19,7 +19,12 @@ int add_employee(struct dbheader_t *dbhdr, struct employee_t *employees, char *a
 }
 
 int read_employees(int fd, struct dbheader_t *dbhdr, struct employee_t **employeesOut) {
-
+	struct employee_t *emps = calloc(dbhdr->count, dbhdr->count * sizeof(struct employee_t));
+	if (emps == NULL) {
+		perror("calloc");
+		return STATUS_ERROR;
+	}
+	// continue here...
 }
 
 int output_file(int fd, struct dbheader_t *dbhdr, struct employee_t *employees) {
